@@ -47,15 +47,7 @@ const Login = () => {
       );
 
       if (response.status === 200) {
-        setErrorMessage("");
-        const user = await axios.get(APP_BASE_URL + GET_USER, {
-          withCredentials: true,
-        });
-        if (user.status === 401) {
-          dispatch(removeUser());
-          navigate("/login");
-        }
-        dispatch(addUser(user.data));
+        dispatch(addUser(response.data.user));
         navigate("/");
       }
     } catch (error) {
