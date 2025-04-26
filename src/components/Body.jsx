@@ -25,7 +25,6 @@ const Body = () => {
 
       return;
     } catch (error) {
-      console.error("error in fetch user:", error);
       return navigate("/login");
     }
   };

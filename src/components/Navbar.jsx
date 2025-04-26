@@ -12,8 +12,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [totalRequests, setTotalRequests] = useState(0);
   const handleLogout = async () => {
-    console.log("CALLING LOGOUT:", APP_BASE_URL + LOGOUT);
-    const response = await axios.post(
+    await axios.post(
       APP_BASE_URL + LOGOUT,
       {},
       {
@@ -37,7 +36,7 @@ const Navbar = () => {
       {user && (
         <div className="flex-none mx-5">
           <div className="dropdown me-5">
-            <>Welcome, {user.firstName ? user.firstName : "User"}</>
+            <>Welcome, {user.name ? user.name : "User"}</>
           </div>
           <div className="dropdown dropdown-end">
             <div
