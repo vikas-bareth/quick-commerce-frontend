@@ -36,7 +36,7 @@ const Navbar = () => {
       {user && (
         <div className="flex-none mx-5">
           <div className="dropdown me-5">
-            <>Welcome, {user.name ? user.name : "User"}</>
+            <>Welcome, {user.firstName ? user.firstName : "User"}</>
           </div>
           <div className="dropdown dropdown-end">
             <div
