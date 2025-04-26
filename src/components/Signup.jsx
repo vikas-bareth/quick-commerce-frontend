@@ -6,10 +6,10 @@ import { APP_BASE_URL, LOGIN_IMG_URL, SIGNUP } from "../utils/constants";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
+    firstName: "Test",
+    lastName: "customer",
+    email: "customer@test.com",
+    password: "Customer@1234",
     role: "CUSTOMER",
   });
 
