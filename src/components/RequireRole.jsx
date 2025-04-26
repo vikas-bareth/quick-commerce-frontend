@@ -1,5 +1,6 @@
 import { useSelector } from "react-redux";
 import { Navigate, useLocation } from "react-router-dom";
+import Unauthorized from "./Unauthorized";
 
 const RequireRole = ({ children, allowedRoles }) => {
   const user = useSelector((state) => state.user);
@@ -10,8 +11,10 @@ const RequireRole = ({ children, allowedRoles }) => {
   }
 
   if (!allowedRoles.includes(user.role)) {
-    return <Navigate to="/" replace />;
+    return <Unauthorized />;
   }
 
   return children;
 };
+
+export default RequireRole;

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Body from "./components/Body";
 import Login from "./components/Login";
 import { Provider, useSelector } from "react-redux";
@@ -9,6 +9,8 @@ import Signup from "./components/Signup";
 import ProtectedLayout from "./components/ProtectedLayout";
 import CustomerRoutes from "./components/Customer/CustomerRoutes";
 import DeliveryRoutes from "./components/Delivery/DeliveryRoutes";
+import RoleBasedRedirect from "./components/RoleBasedRedirect";
+import RequireRole from "./components/RequireRole";
 
 function App() {
   return (
@@ -16,15 +18,29 @@ function App() {
       <BadgeProvider>
         <BrowserRouter basename="/">
           <Routes>
-            <Route path="/" element={<Body />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
 
             {/* Protected Parent Route */}
             <Route path="/" element={<ProtectedLayout />}>
               <Route index element={<RoleBasedRedirect />} />
-              <Route path="customer/*" element={<CustomerRoutes />} />
-              <Route path="delivery/*" element={<DeliveryRoutes />} />
+
+              <Route
+                path="customer/*"
+                element={
+                  <RequireRole allowedRoles={["CUSTOMER"]}>
+                    <CustomerRoutes />
+                  </RequireRole>
+                }
+              />
+              <Route
+                path="delivery/*"
+                element={
+                  <RequireRole allowedRoles={["DELIVERY"]}>
+                    <DeliveryRoutes />
+                  </RequireRole>
+                }
+              />
             </Route>
             <Route path="*" element={<PageNotFound />} />
           </Routes>
@@ -35,17 +51,3 @@ function App() {
 }
 
 export default App;
-
-const RoleBasedRedirect = () => {
-  const user = useSelector((state) => state.user);
-
-  if (!user) return <Navigate to="/login" />;
-
-  return user.role === "CUSTOMER" ? (
-    <Navigate to="/customer" replace />
-  ) : user.role === "DELIEVERY" ? (
-    <Navigate to="/delivery" replace />
-  ) : (
-    <Navigate to="/" />
-  );
-};
