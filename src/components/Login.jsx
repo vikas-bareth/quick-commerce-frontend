@@ -4,7 +4,12 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
 import SideImageCard from "./common/SideImageCard";
-import { APP_BASE_URL, LOGIN, LOGIN_IMG_URL } from "../utils/constants";
+import {
+  APP_BASE_URL,
+  GET_USER,
+  LOGIN,
+  LOGIN_IMG_URL,
+} from "../utils/constants";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -43,7 +48,14 @@ const Login = () => {
 
       if (response.status === 200) {
         setErrorMessage("");
-        dispatch(addUser(response.data.user));
+        const user = await axios.get(APP_BASE_URL + GET_USER, {
+          withCredentials: true,
+        });
+        if (user.status === 401) {
+          dispatch(removeUser());
+          navigate("/login");
+        }
+        dispatch(addUser(user.data));
         navigate("/");
       }
     } catch (error) {
