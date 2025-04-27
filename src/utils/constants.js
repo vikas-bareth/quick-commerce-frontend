@@ -6,7 +6,11 @@ export const SIGNUP = "/auth/register";
 export const GET_CUSTOMER_ORDERS = "/orders/customer";
 export const GET_ORDERS_HISTORY = "/orders/history";
 export const CREATE_ORDER = "/orders";
-
+export const GET_DELIVERY_STATS = "/orders";
+export const GET_PENDING_ORDERS = "/orders/pending";
+export const UPDATE_ORDER_STATUS = (id) => {
+  return `/orders/${id}/status`;
+};
 // export const LOGIN_IMG_URL =
 //   "https://images.unsplash.com/photo-1516321318423-f06f85e504b3";
 // export const LOGIN_IMG_URL =
