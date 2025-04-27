@@ -4,6 +4,7 @@ export const LOGOUT = "/auth/logout";
 export const GET_USER = "/auth/me";
 export const SIGNUP = "/auth/register";
 export const GET_CUSTOMER_ORDERS = "/orders/customer";
+export const GET_ORDERS_HISTORY = "/orders/history";
 
 // export const LOGIN_IMG_URL =
 //   "https://images.unsplash.com/photo-1516321318423-f06f85e504b3";

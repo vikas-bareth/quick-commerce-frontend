@@ -1,0 +1,42 @@
+export const statusConfig = {
+  PENDING: {
+    color: "badge-warning",
+    icon: "⏳",
+    nextAction: "Accept Order",
+    nextStatus: "Accepted",
+    buttonClass: "btn-success",
+    description: "Waiting for acceptance",
+  },
+  ACCEPTED: {
+    color: "badge-info",
+    icon: "✅",
+    nextAction: "Start Delivery",
+    nextStatus: "OUT_FOR_DELIEVERY",
+    buttonClass: "btn-primary",
+    description: "Preparing for delivery",
+  },
+  OUT_FOR_DELIVERY: {
+    color: "badge-primary",
+    icon: "🚚",
+    nextAction: "Mark Delivered",
+    nextStatus: "Delivered",
+    buttonClass: "btn-primary",
+    description: "On its way to you",
+  },
+  DELIVERED: {
+    color: "badge-success",
+    icon: "🎉",
+    nextAction: null,
+    nextStatus: null,
+    buttonClass: "",
+    description: "Successfully delivered",
+  },
+  CANCELLED: {
+    color: "badge-error",
+    icon: "❌",
+    nextAction: null,
+    nextStatus: null,
+    buttonClass: "",
+    description: "Order cancelled",
+  },
+};
