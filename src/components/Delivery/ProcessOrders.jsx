@@ -7,6 +7,7 @@ import {
 } from "../../utils/constants";
 import DeliveryOrderCard from "./DeliveryOrderCard";
 import ConfirmModal from "./ConfirmModal";
+import GoToHomeButton from "../GoToHomeButton";
 
 const ProcessOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -163,6 +164,9 @@ const ProcessOrders = () => {
             All orders are either pending or have been completed. Check back
             later for new orders.
           </p>
+          <div>
+            <GoToHomeButton label="Go to home" />
+          </div>
         </div>
       )}
 
