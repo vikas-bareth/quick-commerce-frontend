@@ -29,11 +29,13 @@ const DeliveryOrderCard = ({ order, onActionClick }) => {
         </div>
 
         <div className="card-actions justify-end mt-3">
-          <StatusActionButton
-            status={order.status}
-            orderId={order.id}
-            onActionClick={onActionClick}
-          />
+          {onActionClick && (
+            <StatusActionButton
+              status={order.status}
+              orderId={order.id}
+              onActionClick={onActionClick}
+            />
+          )}
         </div>
       </div>
     </div>

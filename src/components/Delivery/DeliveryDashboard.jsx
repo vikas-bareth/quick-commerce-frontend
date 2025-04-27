@@ -4,6 +4,7 @@ import {
   APP_BASE_URL,
   GET_ORDERS_HISTORY,
   GET_PENDING_ORDERS,
+  UPDATE_ORDER_STATUS,
 } from "../../utils/constants";
 import DeliveryOrderCard from "./DeliveryOrderCard";
 import StatsCard from "./StatsCard";
@@ -66,7 +67,7 @@ const DeliveryDashboard = () => {
   const updateOrderStatus = async () => {
     try {
       await axios.put(
-        `${APP_BASE_URL}/orders/${modalState.orderId}/status`,
+        APP_BASE_URL + UPDATE_ORDER_STATUS(modalState.orderId),
         { status: modalState.newStatus },
         { withCredentials: true }
       );
@@ -108,6 +109,7 @@ const DeliveryDashboard = () => {
           value={stats.inProgress}
           description="Currently delivering"
           color="info"
+          link="/delivery/in-progress"
         />
         <StatsCard
           title="Delivered"
