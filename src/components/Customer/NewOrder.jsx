@@ -95,7 +95,7 @@ const NewOrder = () => {
               />
             </svg>
           </div>
-          <h3 className="text-lg font-medium mb-2">
+          <h3 className="text-lg font-bold mb-2 text-green-600">
             Order Placed Successfully!
           </h3>
           {orderDetails && (
