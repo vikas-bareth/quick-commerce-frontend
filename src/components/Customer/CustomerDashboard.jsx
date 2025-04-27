@@ -5,7 +5,7 @@ import { APP_BASE_URL, GET_CUSTOMER_ORDERS } from "../../utils/constants";
 import OrderCard from "../OrderCard";
 
 const CustomerDashboard = () => {
-  const [recentOrders, setRecentOrders] = useState([]);
+  const [allOrders, setAllOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchRecentOrders = async () => {
@@ -14,7 +14,7 @@ const CustomerDashboard = () => {
       const response = await axios.get(APP_BASE_URL + GET_CUSTOMER_ORDERS, {
         withCredentials: true,
       });
-      setRecentOrders(response?.data?.orders);
+      setAllOrders(response?.data?.orders || []);
     } catch (error) {
       console.error("Error fetching orders:", error);
     } finally {
@@ -23,7 +23,7 @@ const CustomerDashboard = () => {
   };
 
   const handleStatusUpdate = (orderId, newStatus) => {
-    setRecentOrders((prevOrders) =>
+    setAllOrders((prevOrders) =>
       prevOrders.map((order) =>
         order.id === orderId ? { ...order, status: newStatus } : order
       )
@@ -34,6 +34,16 @@ const CustomerDashboard = () => {
     fetchRecentOrders();
   }, []);
 
+  const getRecentOrders = () => {
+    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
+
+    return allOrders
+      .filter((order) => new Date(order.createdAt) >= twelveHoursAgo)
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  };
+
+  const recentOrders = getRecentOrders();
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header Section */}
@@ -43,7 +53,9 @@ const CustomerDashboard = () => {
             Welcome to Your Dashboard
           </h1>
           <p className="text-secondary mt-2">
-            Here's your recent order activity
+            {recentOrders.length > 0
+              ? "Your recent orders from the past 12 hours"
+              : "Recent order activity will appear here"}
           </p>
         </div>
 
@@ -84,14 +96,13 @@ const CustomerDashboard = () => {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
-        {/* Total Orders */}
         <div className="stats shadow bg-base border border-gray-100">
           <div className="stat p-4">
-            <div className="stat-title text-gray-600">Total Orders</div>
+            <div className="stat-title text-gray-600">Recent Orders</div>
             <div className="stat-value text-primary text-2xl">
               {recentOrders.length}
             </div>
-            <div className="stat-desc text-gray-500">All time</div>
+            <div className="stat-desc text-gray-500">Last 12 hours</div>
           </div>
         </div>
 
@@ -109,10 +120,10 @@ const CustomerDashboard = () => {
           </div>
         </div>
 
-        {/* Accepted */}
+        {/* In Progress */}
         <div className="stats shadow bg-base border border-gray-100">
           <div className="stat p-4">
-            <div className="stat-title text-gray-600">Accepted</div>
+            <div className="stat-title text-gray-600">In Progress</div>
             <div className="stat-value text-info text-2xl">
               {
                 recentOrders.filter(
@@ -134,7 +145,7 @@ const CustomerDashboard = () => {
                   clipRule="evenodd"
                 />
               </svg>
-              In progress
+              Being processed
             </div>
           </div>
         </div>
@@ -166,24 +177,39 @@ const CustomerDashboard = () => {
       </div>
 
       {/* Recent Orders Section */}
-      <div className="card bg-base-100 shadow-lg">
+      <div className="card bg-base-100 shadow-lg mt-6">
         <div className="card-body">
-          <h2 className="card-title mb-4">Recent Orders</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="card-title">Recent Orders</h2>
+            <div className="badge badge-info">Last 12 hours</div>
+          </div>
+
           {isLoading ? (
             <div className="flex justify-center items-center py-12">
               <span className="loading loading-spinner loading-lg text-primary"></span>
             </div>
           ) : recentOrders.length === 0 ? (
             <div className="text-center py-12">
-              <h3 className="text-lg font-medium text-primary">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-12 w-12 mx-auto text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                />
+              </svg>
+              <h3 className="text-lg font-medium text-primary mt-4">
                 No recent orders
               </h3>
               <p className="text-secondary mt-2">
-                Get started by placing a new order
+                You haven't placed any orders in the last 12 hours
               </p>
-              <Link to="/customer/new-order" className="btn btn-primary mt-6">
-                Place Your First Order
-              </Link>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4">
