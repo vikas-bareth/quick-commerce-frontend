@@ -1,47 +1,38 @@
-import StatusUpdateButton from "./StatusUpdateButton";
+import StatusActionButton from "./StatusActionButton";
 
-const DeliveryOrderCard = ({ order, onStatusUpdate }) => {
+const DeliveryOrderCard = ({ order, onActionClick }) => {
+  const getStatusColor = () => {
+    switch (order.status) {
+      case "PENDING":
+        return "badge-warning";
+      case "ACCEPTED":
+        return "badge-info";
+      case "OUT_FOR_DELIVERY":
+        return "badge-primary";
+      default:
+        return "badge-neutral";
+    }
+  };
+
   return (
-    <div className="card bg-white shadow-sm rounded-lg mb-4 border border-gray-200">
+    <div className="card bg-base-100 shadow">
       <div className="card-body p-4">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-semibold">
-            Order #{order._id.slice(-6)}
-          </h3>
-          <span
-            className={`badge ${
-              order.status === "PENDING"
-                ? "badge-warning"
-                : order.status === "ACCEPTED"
-                ? "badge-info"
-                : order.status === "OUT_FOR_DELIVERY"
-                ? "badge-primary"
-                : "badge-success"
-            }`}
-          >
-            {order.status}
-          </span>
+        <div className="flex justify-between items-start">
+          <div>
+            <h3 className="font-bold">Order #{order.id.slice(-6)}</h3>
+            <p className="text-sm">
+              {order.product} (Qty: {order.quantity})
+            </p>
+            <p className="text-xs mt-1">{order.location}</p>
+          </div>
+          <span className={`badge ${getStatusColor()}`}>{order.status}</span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-          <div>
-            <p className="text-sm text-gray-500">Product</p>
-            <p className="font-medium">{order.product}</p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-500">Quantity</p>
-            <p className="font-medium">{order.quantity}</p>
-          </div>
-          <div className="md:col-span-2">
-            <p className="text-sm text-gray-500">Delivery Address</p>
-            <p className="font-medium">{order.location}</p>
-          </div>
-        </div>
-
-        <div className="card-actions justify-end">
-          <StatusUpdateButton
-            currentStatus={order.status}
-            onUpdate={(newStatus) => onStatusUpdate(order._id, newStatus)}
+        <div className="card-actions justify-end mt-3">
+          <StatusActionButton
+            status={order.status}
+            orderId={order.id}
+            onActionClick={onActionClick}
           />
         </div>
       </div>

@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
 import {
   APP_BASE_URL,
   GET_ORDERS_HISTORY,
   GET_PENDING_ORDERS,
 } from "../../utils/constants";
-import OrderCard from "../../components/delivery/OrderCard";
-import StatsCard from "../../components/delivery/StatsCard";
-import ConfirmModal from "../../components/delivery/ConfirmModal";
+import DeliveryOrderCard from "./DeliveryOrderCard";
+import StatsCard from "./StatsCard";
+import ConfirmModal from "./ConfirmModal";
 
 const DeliveryDashboard = () => {
   const [stats, setStats] = useState({
@@ -131,7 +130,7 @@ const DeliveryDashboard = () => {
       ) : (
         <div className="space-y-4">
           {pendingOrders.map((order) => (
-            <OrderCard
+            <DeliveryOrderCard
               key={order.id}
               order={order}
               onActionClick={handleActionClick}
