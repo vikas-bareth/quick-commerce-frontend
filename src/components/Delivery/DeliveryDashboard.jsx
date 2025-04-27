@@ -3,6 +3,7 @@ import axios from "axios";
 import {
   APP_BASE_URL,
   GET_DELIVERY_STATS,
+  GET_ORDERS_HISTORY,
   GET_PENDING_ORDERS,
   UPDATE_ORDER_STATUS,
 } from "../../utils/constants";
@@ -14,52 +15,66 @@ const DeliveryDashboard = () => {
     inProgress: 0,
     delivered: 0,
   });
-  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [pendingOrders, setPendingOrders] = useState([]);
 
-  const fetchData = async () => {
+  const fetchAllData = async () => {
     try {
       setLoading(true);
       setError("");
 
-      // Parallel requests
-      const [statsRes, ordersRes] = await Promise.all([
-        axios.get(APP_BASE_URL + GET_DELIVERY_STATS, { withCredentials: true }),
+      const [historyRes, pendingRes] = await Promise.all([
+        axios.get(APP_BASE_URL + GET_ORDERS_HISTORY, { withCredentials: true }),
         axios.get(APP_BASE_URL + GET_PENDING_ORDERS, { withCredentials: true }),
       ]);
 
-      setStats(statsRes.data);
-      setOrders(ordersRes.data.orders);
+      const calculatedStats = {
+        pending: pendingRes.data.orders.filter((o) => o.status === "PENDING")
+          .length,
+        inProgress: historyRes.data.orders.filter(
+          (o) => o.status === "ACCEPTED" || o.status === "OUT_FOR_DELIVERY"
+        ).length,
+        delivered: historyRes.data.orders.filter(
+          (o) => o.status === "DELIVERED"
+        ).length,
+      };
+
+      setStats(calculatedStats);
+      setPendingOrders(pendingRes.data.orders);
     } catch (err) {
-      setError("Failed to load dashboard data");
+      setError(err.response?.data?.message || "Failed to load dashboard data");
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleStatusUpdate = async (orderId, newStatus) => {
+  const updateOrderStatus = async (orderId, newStatus) => {
     try {
       await axios.put(
-        `${APP_BASE_URL}${UPDATE_ORDER_STATUS}/${orderId}`,
+        `${APP_BASE_URL}/orders/${orderId}/status`,
         { status: newStatus },
         { withCredentials: true }
       );
-      fetchData();
+      fetchAllData();
     } catch (err) {
       setError("Failed to update order status");
       console.error(err);
     }
   };
 
-  // useEffect(() => {
-  //   fetchData();
-  // }, []);
+  useEffect(() => {
+    fetchAllData();
+  }, []);
 
-  const getNextAction = (currentStatus) => {
+  const getStatusAction = (status) => {
     const actions = {
-      PENDING: { next: "ACCEPTED", text: "Accept Order", color: "btn-success" },
+      PENDING: {
+        next: "ACCEPTED",
+        text: "Accept Order",
+        color: "btn-success",
+      },
       ACCEPTED: {
         next: "OUT_FOR_DELIVERY",
         text: "Start Delivery",
@@ -71,7 +86,7 @@ const DeliveryDashboard = () => {
         color: "btn-primary",
       },
     };
-    return actions[currentStatus] || null;
+    return actions[status];
   };
 
   return (
@@ -81,7 +96,7 @@ const DeliveryDashboard = () => {
       {error && (
         <div className="alert alert-error mb-4">
           <span>{error}</span>
-          <button onClick={fetchData} className="btn btn-sm btn-ghost">
+          <button onClick={fetchAllData} className="btn btn-sm btn-ghost">
             Retry
           </button>
         </div>
@@ -127,23 +142,21 @@ const DeliveryDashboard = () => {
         <div className="flex justify-center py-12">
           <span className="loading loading-spinner loading-lg"></span>
         </div>
-      ) : orders.length === 0 ? (
+      ) : pendingOrders.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           No orders need action right now
         </div>
       ) : (
         <div className="space-y-4">
-          {orders.map((order) => {
-            const action = getNextAction(order.status);
+          {pendingOrders.map((order) => {
+            const action = getStatusAction(order.status);
 
             return (
-              <div key={order._id} className="card bg-base-100 shadow">
+              <div key={order.id} className="card bg-base-100 shadow">
                 <div className="card-body p-4">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="font-bold">
-                        Order #{order._id.slice(-6)}
-                      </h3>
+                      <h3 className="font-bold">Order #{order.id.slice(-6)}</h3>
                       <p className="text-sm">
                         {order.product} (Qty: {order.quantity})
                       </p>
@@ -165,9 +178,7 @@ const DeliveryDashboard = () => {
                   {action && (
                     <div className="card-actions justify-end mt-3">
                       <button
-                        onClick={() =>
-                          handleStatusUpdate(order._id, action.next)
-                        }
+                        onClick={() => updateOrderStatus(order.id, action.next)}
                         className={`btn btn-sm ${action.color}`}
                       >
                         {action.text}
