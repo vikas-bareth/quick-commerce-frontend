@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { APP_BASE_URL, GET_CUSTOMER_ORDERS } from "../../utils/constants";
@@ -7,6 +7,7 @@ import OrderCard from "../OrderCard";
 const CustomerDashboard = () => {
   const [allOrders, setAllOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   const fetchRecentOrders = async () => {
     try {
@@ -14,6 +15,9 @@ const CustomerDashboard = () => {
       const response = await axios.get(APP_BASE_URL + GET_CUSTOMER_ORDERS, {
         withCredentials: true,
       });
+      if (response.status === 401) {
+        navigate("/login");
+      }
       setAllOrders(response?.data?.orders || []);
     } catch (error) {
       console.error("Error fetching orders:", error);

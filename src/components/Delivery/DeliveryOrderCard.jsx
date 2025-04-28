@@ -23,7 +23,7 @@ const DeliveryOrderCard = ({ order, onActionClick }) => {
             <p className="text-sm">
               {order.product} (Qty: {order.quantity})
             </p>
-            <p className="text-xs mt-1">{order.location}</p>
+            <p className="text-xs mt-1">{order.deliveryAddress}</p>
           </div>
           <span className={`badge ${getStatusColor()}`}>{order.status}</span>
         </div>

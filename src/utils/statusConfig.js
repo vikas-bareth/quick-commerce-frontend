@@ -31,7 +31,7 @@ export const statusConfig = {
     buttonClass: "",
     description: "Successfully delivered",
   },
-  CANCELLED: {
+  CANCELED: {
     color: "badge-error",
     icon: "❌",
     nextAction: null,

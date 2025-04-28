@@ -1,21 +1,28 @@
 import { Link } from "react-router-dom";
 import { statusConfig } from "../utils/statusConfig";
+import axios from "axios";
+import { APP_BASE_URL } from "../utils/constants";
 
 const OrderCard = ({ order, role, onStatusUpdate }) => {
   const currentStatus = statusConfig[order.status] || statusConfig.Pending;
 
   const handleStatusUpdate = () => {
     if (currentStatus.nextStatus && onStatusUpdate) {
-      onStatusUpdate(order._id, currentStatus.nextStatus);
+      onStatusUpdate(order.id, currentStatus.nextStatus);
     }
   };
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
     if (
       onStatusUpdate &&
       confirm("Are you sure you want to cancel this order?")
     ) {
-      onStatusUpdate(order._id, "Cancelled");
+      onStatusUpdate(order.id, "Cancelled");
+      const response = await axios.post(
+        `${APP_BASE_URL}/orders/cancel/${order.id}`,
+        {},
+        { withCredentials: true }
+      );
     }
   };
 
@@ -53,7 +60,7 @@ const OrderCard = ({ order, role, onStatusUpdate }) => {
             <p className="text-xs font-semibold text-gray-500 mb-1">
               DELIVERY TO
             </p>
-            <p className="font-medium">{order.location}</p>
+            <p className="font-medium">{order.deliveryAddress}</p>
           </div>
           <div className="bg-base-200/50 p-3 rounded-lg">
             <p className="text-xs font-semibold text-gray-500 mb-1">STATUS</p>
@@ -62,60 +69,64 @@ const OrderCard = ({ order, role, onStatusUpdate }) => {
         </div>
 
         {/* Status timeline */}
-        <div className="mb-5">
-          <div className="text-xs font-semibold text-gray-500 mb-2">
-            DELIVERY PROGRESS
+        {order.status === "CANCELED" ? (
+          <></>
+        ) : (
+          <div className="mb-5">
+            <div className="text-xs font-semibold text-gray-500 mb-2">
+              DELIVERY PROGRESS
+            </div>
+            <div className="steps steps-horizontal">
+              <div
+                className={`step ${
+                  order.status === "PENDING"
+                    ? "step-primary"
+                    : order.status !== "PENDING"
+                    ? "step-primary"
+                    : ""
+                }`}
+              >
+                Pending
+              </div>
+              <div
+                className={`step ${
+                  order.status === "ACCEPTED"
+                    ? "step-primary"
+                    : ["OUT_FOR_DELIVERY", "DELIVERED"].includes(order.status)
+                    ? "step-primary"
+                    : ""
+                }`}
+              >
+                Accepted
+              </div>
+              <div
+                className={`step ${
+                  order.status === "OUT_FOR_DELIVERY"
+                    ? "step-primary"
+                    : order.status === "DELIVERED"
+                    ? "step-primary"
+                    : ""
+                }`}
+              >
+                On the way
+              </div>
+              <div
+                className={`step ${
+                  order.status === "DELIVERED" ? "step-primary" : ""
+                }`}
+              >
+                Delivered
+              </div>
+            </div>
           </div>
-          <div className="steps steps-horizontal">
-            <div
-              className={`step ${
-                order.status === "PENDING"
-                  ? "step-primary"
-                  : order.status !== "PENDING"
-                  ? "step-primary"
-                  : ""
-              }`}
-            >
-              Pending
-            </div>
-            <div
-              className={`step ${
-                order.status === "ACCEPTED"
-                  ? "step-primary"
-                  : ["OUT_FOR_DELIVERY", "DELIVERED"].includes(order.status)
-                  ? "step-primary"
-                  : ""
-              }`}
-            >
-              Accepted
-            </div>
-            <div
-              className={`step ${
-                order.status === "OUT_FOR_DELIVERY"
-                  ? "step-primary"
-                  : order.status === "DELIVERED"
-                  ? "step-primary"
-                  : ""
-              }`}
-            >
-              On the way
-            </div>
-            <div
-              className={`step ${
-                order.status === "DELIVERED" ? "step-primary" : ""
-              }`}
-            >
-              Delivered
-            </div>
-          </div>
-        </div>
+        )}
 
         {/* Role-specific actions */}
         <div className="card-actions justify-end">
           {role === "CUSTOMER" && (
             <div className="flex gap-2">
               <Link
-                to={`/customer/orders/${order._id}`}
+                to={`/customer/orders/${order.id}`}
                 className="btn btn-sm btn-outline border-gray-300 hover:border-primary hover:bg-primary/10"
               >
                 View Details
@@ -142,7 +153,7 @@ const OrderCard = ({ order, role, onStatusUpdate }) => {
                 </button>
               )}
               <Link
-                to={`/delivery/orders/${order._id}`}
+                to={`/delivery/orders/${order.id}`}
                 className="btn btn-sm btn-outline border-gray-300 hover:border-primary hover:bg-primary/10"
               >
                 Order Details
