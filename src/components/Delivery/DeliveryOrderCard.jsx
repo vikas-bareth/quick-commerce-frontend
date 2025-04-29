@@ -1,6 +1,7 @@
 import StatusActionButton from "./StatusActionButton";
 
 const DeliveryOrderCard = ({ order, onActionClick }) => {
+  if (!order || !order.id) return null;
   const getStatusColor = () => {
     switch (order.status) {
       case "PENDING":

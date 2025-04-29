@@ -7,6 +7,7 @@ const SocketContext = createContext();
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [orderStatusUpdates, setOrderStatusUpdates] = useState({});
+  const [newOrders, setNewOrders] = useState([]);
 
   useEffect(() => {
     const newSocket = io(APP_BASE_URL, {
@@ -26,6 +27,10 @@ export const SocketProvider = ({ children }) => {
 
     newSocket.on("connect_error", (err) => {
       console.error("Connection error:", err);
+    });
+
+    newSocket.on("newOrderAvailable", (order) => {
+      setNewOrders((prev) => [...prev, order]);
     });
 
     setSocket(newSocket);
@@ -54,6 +59,8 @@ export const SocketProvider = ({ children }) => {
         joinOrderRoom,
         leaveOrderRoom,
         orderStatusUpdates,
+        newOrders,
+        clearNewOrders: () => setNewOrders([]),
       }}
     >
       {children}

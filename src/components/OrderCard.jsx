@@ -18,7 +18,6 @@ const OrderCard = ({ order, role, onStatusUpdate }) => {
   };
 
   useEffect(() => {
-    console.log(orderStatusUpdates, orderStatusUpdates[order.id]);
     if (orderStatusUpdates[order.id]) {
       setCurrentOrder((prev) => ({
         ...prev,
