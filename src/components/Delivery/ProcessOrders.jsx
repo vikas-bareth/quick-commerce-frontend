@@ -8,17 +8,11 @@ import {
 import DeliveryOrderCard from "./DeliveryOrderCard";
 import ConfirmModal from "./ConfirmModal";
 import GoToHomeButton from "../GoToHomeButton";
+import { useOrderStatusUpdate } from "../../hooks/useOrderStatusUpdate";
 
 const ProcessOrders = () => {
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [modalState, setModalState] = useState({
-    show: false,
-    orderId: null,
-    newStatus: null,
-    actionText: "",
-  });
+  const [loading, setLoading] = useState(false);
 
   const fetchProcessingOrders = async () => {
     try {
@@ -38,33 +32,21 @@ const ProcessOrders = () => {
   };
 
   const handleActionClick = (orderId, newStatus, actionText) => {
-    setModalState({
-      show: true,
-      orderId,
-      newStatus,
-      actionText,
-    });
+    showStatusUpdateModal(orderId, newStatus, actionText);
   };
 
-  const updateOrderStatus = async () => {
-    try {
-      await axios.put(
-        APP_BASE_URL + UPDATE_ORDER_STATUS(modalState.orderId),
-        { status: modalState.newStatus },
-        { withCredentials: true }
-      );
-      setModalState({ ...modalState, show: false });
-      fetchProcessingOrders();
-    } catch (err) {
-      setError("Failed to update order status");
-      setModalState({ ...modalState, show: false });
-    }
-  };
+  const {
+    modalState,
+    setModalState,
+    error,
+    setError,
+    updateOrderStatus,
+    showStatusUpdateModal,
+  } = useOrderStatusUpdate(fetchProcessingOrders);
 
   useEffect(() => {
     fetchProcessingOrders();
   }, []);
-
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       {/* Header Section */}

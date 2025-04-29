@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import {
   APP_BASE_URL,
+  GET_IN_PROGRESS_ORDERS,
   GET_ORDERS_HISTORY,
   GET_PENDING_ORDERS,
   UPDATE_ORDER_STATUS,
@@ -9,8 +10,30 @@ import {
 import DeliveryOrderCard from "./DeliveryOrderCard";
 import StatsCard from "./StatsCard";
 import ConfirmModal from "./ConfirmModal";
+import { useOrderStatusUpdate } from "../../hooks/useOrderStatusUpdate";
 
 const DeliveryDashboard = () => {
+  const fetchProcessingOrders = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      const response = await axios.get(APP_BASE_URL + GET_IN_PROGRESS_ORDERS, {
+        withCredentials: true,
+      });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const {
+    modalState,
+    setModalState,
+    error,
+    setError,
+    updateOrderStatus,
+    showStatusUpdateModal,
+  } = useOrderStatusUpdate(fetchProcessingOrders);
   const [stats, setStats] = useState({
     pending: 0,
     inProgress: 0,
@@ -18,13 +41,6 @@ const DeliveryDashboard = () => {
   });
   const [pendingOrders, setPendingOrders] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [modalState, setModalState] = useState({
-    show: false,
-    orderId: null,
-    newStatus: null,
-    actionText: "",
-  });
 
   const fetchAllData = async () => {
     try {
@@ -56,27 +72,7 @@ const DeliveryDashboard = () => {
   };
 
   const handleActionClick = (orderId, newStatus, actionText) => {
-    setModalState({
-      show: true,
-      orderId,
-      newStatus,
-      actionText,
-    });
-  };
-
-  const updateOrderStatus = async () => {
-    try {
-      await axios.put(
-        APP_BASE_URL + UPDATE_ORDER_STATUS(modalState.orderId),
-        { status: modalState.newStatus },
-        { withCredentials: true }
-      );
-      setModalState({ ...modalState, show: false });
-      fetchAllData();
-    } catch (err) {
-      setError("Failed to update order status");
-      setModalState({ ...modalState, show: false });
-    }
+    showStatusUpdateModal(orderId, newStatus, actionText);
   };
 
   useEffect(() => {

@@ -9,17 +9,11 @@ import {
 
 import ConfirmModal from "./ConfirmModal";
 import DeliveryOrderCard from "./DeliveryOrderCard";
+import { useOrderStatusUpdate } from "../../hooks/useOrderStatusUpdate";
 
 const PendingOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [modalState, setModalState] = useState({
-    show: false,
-    orderId: null,
-    newStatus: null,
-    actionText: "",
-  });
 
   const fetchPendingOrders = async () => {
     try {
@@ -37,28 +31,17 @@ const PendingOrders = () => {
   };
 
   const handleActionClick = (orderId, newStatus, actionText) => {
-    setModalState({
-      show: true,
-      orderId,
-      newStatus,
-      actionText,
-    });
+    showStatusUpdateModal(orderId, newStatus, actionText);
   };
 
-  const updateOrderStatus = async () => {
-    try {
-      await axios.put(
-        `${APP_BASE_URL}${UPDATE_ORDER_STATUS}/${modalState.orderId}`,
-        { status: modalState.newStatus },
-        { withCredentials: true }
-      );
-      setModalState({ ...modalState, show: false });
-      fetchPendingOrders();
-    } catch (err) {
-      setError("Failed to update order status");
-      setModalState({ ...modalState, show: false });
-    }
-  };
+  const {
+    modalState,
+    setModalState,
+    error,
+    setError,
+    updateOrderStatus,
+    showStatusUpdateModal,
+  } = useOrderStatusUpdate(fetchPendingOrders);
 
   useEffect(() => {
     fetchPendingOrders();
