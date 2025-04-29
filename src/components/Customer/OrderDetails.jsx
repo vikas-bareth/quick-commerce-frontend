@@ -2,6 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { APP_BASE_URL } from "../../utils/constants";
+import { useSocket } from "../../context/SocketContext";
 
 const OrderDetails = () => {
   const { id } = useParams();
@@ -9,6 +10,7 @@ const OrderDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { joinOrderRoom, leaveOrderRoom, orderStatusUpdates } = useSocket();
 
   const fetchOrderDetails = async () => {
     try {
@@ -29,7 +31,32 @@ const OrderDetails = () => {
 
   useEffect(() => {
     fetchOrderDetails();
+    if (id) {
+      joinOrderRoom(id);
+      console.log(`Joined room for order ${id}`);
+    }
+
+    return () => {
+      if (id) {
+        leaveOrderRoom(id);
+        console.log(`Left room for order ${id}`);
+      }
+    };
   }, [id]);
+
+  useEffect(() => {
+    if (orderStatusUpdates && id && orderStatusUpdates[id]) {
+      console.log("Received order update:", orderStatusUpdates[id]);
+      setOrder((prev) => ({
+        ...prev,
+        status: orderStatusUpdates[id].newStatus,
+        updatedAt: orderStatusUpdates[id].updatedAt,
+        ...(orderStatusUpdates[id].deliveryPartner && {
+          deliveryPartner: orderStatusUpdates[id].deliveryPartner,
+        }),
+      }));
+    }
+  }, [orderStatusUpdates, id]);
 
   const getStatusBadgeColor = () => {
     switch (order?.status) {

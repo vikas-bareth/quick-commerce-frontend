@@ -3,11 +3,13 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { APP_BASE_URL, GET_CUSTOMER_ORDERS } from "../../utils/constants";
 import OrderCard from "../OrderCard";
+import { useSocket } from "../../context/SocketContext";
 
 const CustomerDashboard = () => {
   const [allOrders, setAllOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const { joinOrderRoom, leaveOrderRoom, orderStatusUpdates } = useSocket();
 
   const fetchRecentOrders = async () => {
     try {
@@ -18,7 +20,11 @@ const CustomerDashboard = () => {
       if (response.status === 401) {
         navigate("/login");
       }
-      setAllOrders(response?.data?.orders || []);
+      const orders = response?.data?.orders || [];
+      setAllOrders(orders);
+      orders.forEach((order) => {
+        joinOrderRoom(order.id);
+      });
     } catch (error) {
       console.error("Error fetching orders:", error);
     } finally {
@@ -35,7 +41,39 @@ const CustomerDashboard = () => {
   };
 
   useEffect(() => {
+    if (orderStatusUpdates) {
+      setAllOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          orderStatusUpdates[order.id]
+            ? {
+                ...order,
+                status: orderStatusUpdates[order.id].newStatus,
+                updatedAt: orderStatusUpdates[order.id].updatedAt,
+                ...(orderStatusUpdates[order.id].deliveryPartner && {
+                  deliveryPartner: orderStatusUpdates[order.id].deliveryPartner,
+                }),
+              }
+            : order
+        )
+      );
+    }
+  }, [orderStatusUpdates]);
+
+  useEffect(() => {
+    return () => {
+      allOrders.forEach((order) => {
+        leaveOrderRoom(order.id);
+      });
+    };
+  }, [allOrders, leaveOrderRoom]);
+
+  useEffect(() => {
     fetchRecentOrders();
+    return () => {
+      allOrders.forEach((order) => {
+        leaveOrderRoom(order.id);
+      });
+    };
   }, []);
 
   const getRecentOrders = () => {
