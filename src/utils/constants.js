@@ -1,4 +1,4 @@
-export const APP_BASE_URL = "http://51.21.1.0:7777";
+export const APP_BASE_URL = "/api/";
 export const LOGIN = "/auth/login";
 export const LOGOUT = "/auth/logout";
 export const GET_USER = "/auth/me";

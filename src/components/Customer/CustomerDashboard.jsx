@@ -17,9 +17,9 @@ const CustomerDashboard = () => {
       const response = await axios.get(APP_BASE_URL + GET_CUSTOMER_ORDERS, {
         withCredentials: true,
       });
-      if (response.status === 401) {
-        navigate("/login");
-      }
+      // if (response.status === 401) {
+      //   navigate("/login");
+      // }
       const orders = response?.data?.orders || [];
       setAllOrders(orders);
       orders.forEach((order) => {

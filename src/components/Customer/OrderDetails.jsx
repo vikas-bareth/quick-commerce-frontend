@@ -18,9 +18,9 @@ const OrderDetails = () => {
       const response = await axios.get(`${APP_BASE_URL}/orders/${id}`, {
         withCredentials: true,
       });
-      if (response.status === 401) {
-        navigate("/login");
-      }
+      // if (response.status === 401) {
+      //   navigate("/login");
+      // }
       setOrder(response.data.order);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to load order details");
